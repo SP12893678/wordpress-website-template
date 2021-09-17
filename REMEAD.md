@@ -1,4 +1,4 @@
-Ymvdo wordpress web server set up guide
+wordpress web server set up guide
 ---
 ※確定環境已有docker、docker-compose
 ※由於資安問題，若無下方提及檔案，需自行建立
