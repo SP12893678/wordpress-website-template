@@ -1,0 +1,11 @@
+version: '3.1'
+
+services:
+    certbot:
+        image: certbot/dns-cloudflare
+        command: certonly --expand -d ${HOST_DOMAIN} -d ${WILDCARD_DOMAIN} --preferred-challenges dns --dns-cloudflare --dns-cloudflare-credentials /secrets/cloudflare.ini  --email ${HOST_EMAIL} --agree-tos --server https://acme-v02.api.letsencrypt.org/directory
+        volumes:
+        - ../nginx/certbot/conf:/etc/letsencrypt
+        - ../nginx/certbot/logs:/var/log/letsencrypt
+        - ../nginx/certbot/data:/var/www/certbot
+        - ../nginx/ssl:/secrets

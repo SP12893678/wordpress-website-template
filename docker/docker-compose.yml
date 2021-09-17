@@ -1,0 +1,85 @@
+version: '3.1'
+
+services:
+
+  wordpress:
+    image: wordpress:5.7.2-fpm-alpine
+    container_name: wordpress
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: wordpressDB
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+    expose:
+        - 9000
+    volumes:
+      - ../wordpress:/var/www/html
+      - ./config:/usr/local/etc/php/conf.d/uploads.ini
+    networks:
+      - nginxphp
+
+  db:
+    image: mariadb
+    container_name: db
+    restart: always
+    environment:
+      MYSQL_DATABASE: wordpressDB
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ../db_data:/var/lib/mysql
+    networks:
+      - nginxphp
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    ports:
+      - 8082:80
+    environment:
+      PMA_HOST: db
+    depends_on:
+      - db
+    networks:
+      - nginxphp
+
+  nginx:
+    depends_on:
+      - wordpress
+    image: nginx:1.21.0-alpine
+    container_name: nginx
+    restart: always
+    environment:
+      - TZ=Asia/Taipei
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../logs:/var/log/nginx
+      - ../nginx:/etc/nginx/conf.d
+      - ../wordpress:/var/www/html      
+      - ../nginx/certbot/conf:/etc/nginx/ssl
+      - ../nginx/certbot/data:/var/www/certbot
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    networks:
+      - nginxphp
+  
+  certbot:
+    image: certbot/dns-google
+    container_name: certbot
+    volumes:
+      - ../nginx/certbot/conf:/etc/letsencrypt
+      - ../nginx/certbot/logs:/var/log/letsencrypt
+      - ../nginx/certbot/data:/var/www/certbot
+      - ../nginx/ssl:/secrets
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+
+volumes:
+  db:
+
+networks:
+  nginxphp:

@@ -1,0 +1,5 @@
+db_data
+wordpress
+docker/.env
+nginx/certbot
+nginx/ssl/*

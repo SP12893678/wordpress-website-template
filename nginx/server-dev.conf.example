@@ -1,0 +1,29 @@
+server {
+    listen 80;
+	server_name 127.0.0.1;
+        
+    index index.php;
+    root /var/www/html;
+        
+    include conf.d/server/fastcgi-cache.conf;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location ~ [^/]\.php(/|$) {
+        fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+        fastcgi_pass wordpress:9000;
+        fastcgi_index index.php;
+        fastcgi_param  SCRIPT_FILENAME   $document_root$fastcgi_script_name;
+        include fastcgi_params;
+
+        if (!-f $document_root$fastcgi_script_name) {
+            return 404;
+        }
+    }
+
+    include conf.d/server/static-files.conf;
+
+}
+
