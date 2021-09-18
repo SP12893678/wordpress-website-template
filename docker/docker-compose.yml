@@ -68,7 +68,7 @@ services:
       - nginxphp
   
   certbot:
-    image: certbot/dns-google
+    image: certbot/dns-cloudflare
     container_name: certbot
     volumes:
       - ../nginx/certbot/conf:/etc/letsencrypt
