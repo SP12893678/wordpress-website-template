@@ -107,7 +107,7 @@ server {
 上述皆設定完畢後，到docker資料夾開啟終端機，輸入下方指令：
 PS.SSL憑證過程需等待1-2分鐘
 ```
-docker-compose -f docker-composeLE.yml
+docker-compose -f docker-composeLE.yml up
 ```
 
 若成功，再執行下方指令來運行自動憑證作業
